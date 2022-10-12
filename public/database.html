@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>database</title>
+    <style>
+        .heading{
+            text-align: center;
+        }
+        .container{
+            max-width: 550px;
+            margin-left: auto;
+            margin-right: auto;
+            background-color: antiquewhite;
+            border-radius: 5px;
+        }
+        .question{
+            color: red;
+            padding-bottom: 0;
+            margin-bottom: 0;
+            padding-top: 4px;
+            padding-left: 5px;
+        }
+        .answer{
+            color: blue;
+            padding-top: 0;
+            margin-top: 0;
+            padding-bottom: 3px;
+            padding-left: 5px;
+        }
+/* buttton */
+    .add {
+      height: 56px;
+      width: 56px;
+      border-radius: 50%;
+      background-color: white;
+      box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+    }
+
+    .row {
+      height: 30px;
+      width: 4px;
+      background-image: linear-gradient(blue, rgb(241, 241, 120), black);
+      position: relative;
+      left: 26px;
+      top: 11px;
+    }
+
+    .column {
+      height: 4px;
+      width: 30px;
+      background-image: linear-gradient(to right, red, rgb(241, 241, 120), rgb(57, 206, 57));
+      position: relative;
+      left: 13px;
+      top: -7px;
+    }
+
+    /* Dialog box */
+    .modal {
+      display: none;
+      position: fixed;
+      padding-top: 100px;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgb(0, 0, 0);
+      background-color: rgba(0, 0, 0, 0.4);
+      z-index: 5;
+    }
+
+    /* Modal Content */
+    .modal-content {
+      background-color: #fefefe;
+      margin: auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 80%;
+      height: 350px;
+      text-align: center;
+    }
+
+    .modal-content>img {
+      margin-top: 20px;
+      margin-left: auto;
+      margin-right: auto;
+      height: 200px;
+      width: 200px;
+      object-fit: contain;
+    }
+
+    /* The Close Button */
+    .close {
+      color: #aaaaaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .close:hover,
+    .close:focus {
+      color: #000;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .formItem{
+        width: 80%;
+        height: 50px;
+        resize: none;
+        border-radius: 5px;
+    }
+    form{
+        text-align: center;
+        align-items: center;
+        padding-top: 10%;
+    }
+    label{
+        color: blue;
+    }
+    button{
+        padding: 10px;
+        color: white;
+        background-color: blue;
+        border: none;
+        border-radius: 5px;
+        width: 100px;
+        text-align: center;
+    }
+    @media screen and (min-width: 700px) {
+      .modal-content {
+        width: 60%;
+        height: 550px;
+      }}
+
+    </style>
+</head>
+<body>
+    <p class="heading">Questions & Answers Database</p>
+    <div id="list">
+    </div>
+
+<!-- button -->
+    <div class="add" id="myBtn">
+        <div class="row"></div>
+        <div class="column"></div>
+      </div>
+    
+      <!-- dialog Box -->
+      <div id="myModal" class="modal">
+        <div class="modal-content">
+          <span class="close">&times;</span>
+            <form>
+                <label for="question">Question:</label>
+                <input type="text" name="question" id="question" class="formItem"/>
+                <br><br><br><br>
+                <label for="answer">Answer:</label>
+                <input type="text" name="answer" id="answer" class="formItem"/>
+                <br><br> <br>
+                <button type="button" id="btn" onclick="handel()">Submit</button>
+            </form>
+        </div>
+    
+      </div>
+
+
+    <script>
+        const list=document.getElementById('list')
+
+        function setQA(question, answer){
+            const container=document.createElement('div')
+            container.setAttribute('class','container')
+            const q=document.createElement('p')
+            const a=document.createElement('p')
+            q.textContent="Q: "
+            a.textContent="A: "
+            q.textContent +=question
+            a.textContent +=answer
+            q.setAttribute('class','question')
+            a.setAttribute('class','answer')
+            container.appendChild(q)
+            container.appendChild(a)
+            list.prepend(container)
+        }
+        async function loadData(){
+            const res=await fetch('./list')
+            const data=await res.json()
+            for(let i in await data){
+                setQA(await data[i].question, await data[i].answer)
+            }
+        }
+        loadData()
+
+
+        // button
+        var modal = document.getElementById("myModal");
+    var btn = document.getElementById("myBtn");
+    var span = document.getElementsByClassName("close")[0];
+    btn.onclick = function () {
+      modal.style.display = "block";
+    }
+    span.onclick = function () {
+      modal.style.display = "none";
+    }
+    window.onclick = function (event) {
+      if (event.target == modal) {
+        modal.style.display = "none";
+      }
+    }
+
+
+    async function addItem(question, answer){
+        const addItemData={
+            question:question,
+            answer:answer
+        }
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(addItemData)
+        };
+        const response = await fetch('/addItem', options);
+        const data = await response.json();
+    }
+// addItem("favourite color","blue")
+function handel(){
+    const question=document.getElementById('question')
+    const answer=document.getElementById('answer')
+    if(question.value && answer.value){
+        addItem(question.value, answer.value)
+        setQA(question.value, answer.value)
+        modal.style.display = "none";
+        question.value=""
+        answer.value=""
+    }else{
+        alert("Please provide value")
+    }  
+}
+    </script>
+</body>
+</html>
