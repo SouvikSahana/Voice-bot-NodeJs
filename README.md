@@ -1,6 +1,6 @@
 # Voice-bot-NodeJs
 
-### Requiremennts
+### Requirements
 
     NodeJs, Express, Axios, Firebase-admin (database)
 
